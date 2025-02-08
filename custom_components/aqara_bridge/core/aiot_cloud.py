@@ -17,6 +17,7 @@ API_DOMAIN = {
     "GER": "open-ger.aqara.com",
 }
 
+
 def get_random_string(length: int):
     seq = string.ascii_uppercase + string.digits
     return "".join((random.choice(seq) for _ in range(length)))
@@ -54,21 +55,21 @@ class AiotCloud:
         self.set_country("CN")
 
     def set_options(self, options):
-        """ set hass options """
+        """set hass options"""
         self.options = options
 
     def get_options(self):
-        """ get hass options """
+        """get hass options"""
         return self.options
 
     def set_country(self, country: str):
-        """ set aiot country """
+        """set aiot country"""
         self.country = country
         self.api_url = f"https://{API_DOMAIN[country]}/v3.0/open/api"
 
     def get_app_id(self):
         return self.app_id
-    
+
     def get_key_id(self):
         return self.key_id
 
@@ -77,7 +78,7 @@ class AiotCloud:
 
     def set_app_id(self, app_id: str):
         self.app_id = app_id
-    
+
     def set_key_id(self, key_id: str):
         self.key_id = key_id
 
@@ -131,7 +132,9 @@ class AiotCloud:
                 # 这里的异常处理需要优化
                 if jo["code"] != 0:
                     # 调用Aiot api失败，返回值
-                    _LOGGER.warning(f"Call Aiot api failed，request:{payload},return:{jo}")
+                    _LOGGER.warning(
+                        f"Call Aiot api failed，request:{payload},return:{jo}"
+                    )
                     if jo["code"] == 108:
                         # 令牌过期或异常，正在尝试自动刷新
                         _LOGGER.warning(f"Aiot token expired, trying to auto refresh！")
@@ -144,7 +147,9 @@ class AiotCloud:
                             )
                         else:
                             # Aiot令牌更新失败，请重新授权
-                            _LOGGER.error("Aiot token refresh failed, please do authorization again！")
+                            _LOGGER.error(
+                                "Aiot token refresh failed, please do authorization again！"
+                            )
                 return jo.get("result")
             else:
                 return jo
@@ -194,7 +199,9 @@ class AiotCloud:
             if self.update_token_event_callback:
                 self.update_token_event_callback(self.access_token, self.refresh_token)
         else:
-            _LOGGER.error(f"Call Aiot api refresh token failed，request:{refresh_token},return:{jo}")
+            _LOGGER.error(
+                f"Call Aiot api refresh token failed，request:{refresh_token},return:{jo}"
+            )
         return jo
 
     async def async_query_device_bind_key(self, did: str):
@@ -256,18 +263,27 @@ class AiotCloud:
             resources=[{"subjectId": subject_id, "resourceIds": resource_ids}],
         )
 
-    async def async_query_resource_history(self, subject_id: str, resource_ids: list,
-        startTime=None, endTime=None, page_size: int = 30):
+    async def async_query_resource_history(
+        self,
+        subject_id: str,
+        resource_ids: list,
+        startTime=None,
+        endTime=None,
+        page_size: int = 30,
+    ):
         if endTime is None and startTime is None:
             endTime = int(time.time() * 1000)
             startTime = int(endTime - (7 * 24 * 3600 * 1000))
         """查询资源历史信息"""
         return await self._async_invoke_aqara_cloud_api(
             intent="fetch.resource.history",
-            subjectId=subject_id, resourceIds=resource_ids,
-            startTime=startTime ,endTime=endTime, size=page_size
+            subjectId=subject_id,
+            resourceIds=resource_ids,
+            startTime=startTime,
+            endTime=endTime,
+            size=page_size,
         )
-    
+
     async def async_query_resource_name(self, subjectIds: list):
         """查询资源名称"""
         return await self._async_invoke_aqara_cloud_api(
@@ -286,22 +302,16 @@ class AiotCloud:
             resources=[{"resourceId": resource_id, "value": value}],
         )
 
-    async def async_write_device_openconnect(
-        self, subject_id: str
-    ):
+    async def async_write_device_openconnect(self, subject_id: str):
         """开启网关添加子设备模式"""
         return await self._async_invoke_aqara_cloud_api(
-            intent="write.device.openConnect",
-            resources=[{"subjectId": subject_id}]
+            intent="write.device.openConnect", resources=[{"subjectId": subject_id}]
         )
 
-    async def async_write_device_closeconnect(
-        self, subject_id: str
-    ):
+    async def async_write_device_closeconnect(self, subject_id: str):
         """关闭网关添加子设备模式"""
         return await self._async_invoke_aqara_cloud_api(
-            intent="write.device.closeConnect",
-            resources=[{"subjectId": subject_id}]
+            intent="write.device.closeConnect", resources=[{"subjectId": subject_id}]
         )
 
     async def async_subscribe_resources(
@@ -310,7 +320,9 @@ class AiotCloud:
         """订阅资源"""
         return await self._async_invoke_aqara_cloud_api(
             intent="config.resource.subscribe",
-            resources=[{"subjectId": subject_id, "resourceIds": resource_ids, "attach": attach}],
+            resources=[
+                {"subjectId": subject_id, "resourceIds": resource_ids, "attach": attach}
+            ],
         )
 
     async def async_unsubscribe_resources(
@@ -319,36 +331,31 @@ class AiotCloud:
         """取消订阅资源"""
         return await self._async_invoke_aqara_cloud_api(
             intent="config.resource.unsubscribe",
-            resources=[{"subjectId": subject_id, "resourceIds": resource_ids, "attach": attach}],
+            resources=[
+                {"subjectId": subject_id, "resourceIds": resource_ids, "attach": attach}
+            ],
         )
 
-    async def async_write_ir_startlearn(
-        self, subject_id: str, time_length=20
-    ):
+    async def async_write_ir_startlearn(self, subject_id: str, time_length=20):
         """开启红外学习"""
         return await self._async_invoke_aqara_cloud_api(
             intent="write.ir.startLearn",
-            resources=[{"subjectId": subject_id, "timeLength": time_length}]
+            resources=[{"subjectId": subject_id, "timeLength": time_length}],
         )
 
-    async def async_write_ir_cancellearn(
-        self, subject_id: str
-    ):
+    async def async_write_ir_cancellearn(self, subject_id: str):
         """取消开启红外学习"""
         return await self._async_invoke_aqara_cloud_api(
-            intent="write.ir.cancelLearn",
-            resources=[{"subjectId": subject_id}]
+            intent="write.ir.cancelLearn", resources=[{"subjectId": subject_id}]
         )
 
-    async def async_query_ir_learnresult(
-        self, subject_id: str, keyid: str
-    ):
+    async def async_query_ir_learnresult(self, subject_id: str, keyid: str):
         """查询红外学习结果"""
         return await self._async_invoke_aqara_cloud_api(
             intent="query.ir.learnResult",
-            resources=[{"subjectId": subject_id, "keyId": keyid}]
+            resources=[{"subjectId": subject_id, "keyId": keyid}],
         )
-    
+
     async def async_query_position_detail(self, positionIds: list):
         """查询位置信息"""
         return await self._async_invoke_aqara_cloud_api(
