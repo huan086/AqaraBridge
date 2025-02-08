@@ -2,7 +2,7 @@
 
 基于Aqara开放平台，通过云端api进行设备控制以及订阅
 
-[![version](https://img.shields.io/github/manifest-json/v/meishild/AqaraBridge?filename=custom_components%2Faqara_bridge%2Fmanifest.json)](https://github.com/meishild/AqaraBridge/releases/latest) [![stars](https://img.shields.io/github/stars/meishild/AqaraBridge)](https://github.com/meishild/AqaraBridge/stargazers) [![issues](https://img.shields.io/github/issues/meishild/AqaraBridge)](https://github.com/meishild/AqaraBridge/issues) [![hacs](https://img.shields.io/badge/HACS-Default-orange.svg)](https://hacs.xyz)
+[![version](https://img.shields.io/github/manifest-json/v/bernard3378/AqaraBridge?filename=custom_components%2Faqara_bridge%2Fmanifest.json)](https://github.com/bernard3378/AqaraBridge/releases/latest) [![stars](https://img.shields.io/github/stars/bernard3378/AqaraBridge)](https://github.com/bernard3378/AqaraBridge/stargazers) [![issues](https://img.shields.io/github/issues/bernard3378/AqaraBridge)](https://github.com/bernard3378/AqaraBridge/issues) [![hacs](https://img.shields.io/badge/HACS-Default-orange.svg)](https://hacs.xyz)
 
 
 ## 需要开发者账号支持
@@ -10,7 +10,7 @@
 申请AqaraIOT开发者：[Aqara IoT Cloud](https://developer.aqara.com/register).
 
 * 提示：如果在安装过程中出现此集成不支持通过UI配置，大概率是因为rocketmq的链接库不存在，当前版本仅自动集成了x86和arm64。
-* 当前支持通过hacs商店进行配置，自定义存储库URL: meishild/AqaraBridge
+* 当前支持通过hacs商店进行配置，自定义存储库URL: bernard3378/AqaraBridge
 
 重点提示：
 * 需要自己申请aqara的开发者账号，使用插件自带的信息会导致状态丢失。
@@ -20,7 +20,87 @@
 * 消息查看：如果需要确认消息可以将这个插件的日志级别改成info可以查看对应消息情况。
 
 ## 版本修订
-当前版本V2.0.3修复大部分错误为当前最稳定版本，后续小问题修复延迟合并，主要通过dev2.0分支进行修改。
+当前版本 V2.1.0 修复大部分错误并添加大量设备，为当前最稳定版本
+
+V2.1.0
+* 重写空调控制器类
+* 修复rocketmq启动时阻塞HA初始化问题
+* 修复了调用某些HA已废弃/将要废弃常量问题
+* 修复light设备类颜色映射错误
+* 修复button设备类UI按钮问题
+* 修复无线场景开关（六键版）型号错误
+* 优化Entities载入流程
+* 优化多通道设备初始化流程
+* 优化设备和Entity自动命名规则
+
+- 添加设备：
+- 网关类：
+- - lumi.controller.a4acn1 - 集悦智慧面板 S1 
+
+- 开关/插座类： 
+- - lumi.switch.n3acn3 - 智能墙壁开关D1（零火线三键版） 
+- - lumi.switch.l3acn3 - 智能墙壁开关D1（单火线三键版） 
+- - lumi.ctrl_86plug.aq1 - 墙壁插座（Zigbee版） 
+- - lumi.relay.c2acn01 - 双路控制器 
+
+- 灯控类： 
+- - lumi.light.cbacn1 - Aqara 智能恒流驱动器 T1-1 
+- - lumi.light.cwopcn01 - 吸顶灯MX960（可调色温） 
+- - lumi.light.acn007 - 轨道格栅灯 H1（6头） 
+- - lumi.light.acn008 - 轨道格栅灯 H1（12头） 
+- - lumi.light.acn009 - 轨道泛光灯 H1（30cm） 
+- - lumi.light.acn010 - 轨道泛光灯 H1（60cm） 
+- - lumi.light.acn011 - 轨道吊线灯 H1 
+- - lumi.light.acn012 - 轨道折叠格栅灯 H1（6头） 
+- - lumi.light.acn013 - 轨道偏光灯 H1（22cm） 
+- - lumi.light.cwjwcn02 - 筒灯（可调色温） 
+- - lumi.light.acn004 - Aqara 双色温驱动器 T1 Pro 
+- - lumi.light.acn006 - 轨道灯 H1 Pro 
+- - lumi.light.acn023 - 射灯 T2（15度） 
+- - lumi.light.acn024 - 射灯 T2（24度） 
+- - lumi.light.acn025 - 射灯 T2（36度） 
+- - lumi.light.acn026 - 筒灯 T2（60度） 
+- - lumi.light.acn128 - 筒射灯 T3 
+- - lumi.light.acn014 - LED灯泡 T1（可调色温） 
+- - lumi.light.acn003 - Aqara 吸顶灯 L1-350 
+- - lumi.light.acn015 - Aqara光艺晴空灯 H1 
+- - lumi.light.acn032 - 幻彩吸顶灯 T1（40W） 
+- - lumi.light.acn132 - 流光溢彩灯带 T1 
+
+- 窗帘类：
+- - lumi.curtain.v1 - 智能窗帘电机 (Zigbee开合帘版)
+- - umi.curtain.acn007 - Aqara智能窗帘电机 T1
+- - lumi.curtain.hagl07 - 智能窗帘电机 C2
+- - lumi.curtain.hagl08 - Aqara智能窗帘电机A1
+- - lumi.curtain.hagl04 - 智能窗帘电机 B1
+- - lumi.curtain.acn015 - Aqara智能窗帘电机 T2
+- - lumi.curtain.aq2 - 智能管状电机
+- - lumi.curtain.hagl04 - 智能窗帘电机 B1
+- - lumi.curtain.acn04 - Aqara智能窗帘电机 C3
+- - lumi.curtain.acn003 - 智能窗帘伴侣E1
+
+- 空调/地暖类：
+- - lumi.aircondition.acn05 - 空调伴侣 P3
+- - lumi.airrtc.vrfegl01 - VRF空调控制器
+- - lumi.acpartner.aq1 - 空调伴侣
+- - lumi.acpartner.v3 - 空调伴侣（升级版）
+- - lumi.ctrl_hvac.es1 - 空调温控器
+- - lumi.airrtc.tcpco2ecn01 - 空调温控器（CO2）
+- - lumi.acpartner.es1 - 空调伴侣
+- - lumi.airrtc.tcpecn01 - 空调温控器
+- - lumi.airrtc.tcpecn02 - 空调温控器 S2
+
+- 传感器类：
+- - lumi.motion.ac02 - 人体传感器 P1
+- - umi.motion.agl02 - 人体传感器 T1
+- - lumi.motion.acn001 - 人体传感器 E1
+- - lumi.motion.agl001 - 人体场景传感器 FP2
+- - lumi.sensor_occupy.agl1 - AI智能存在传感器 FP1E
+- - lumi.sensor_natgas.v1 - 天然气报警器
+- - lumi.sensor_gas.acn02 - Aqara天然气报警器
+- - lumi.airmonitor.acn01 - TVOC空气健康伴侣
+- - lumi.sen_ill.agl01 - 光照传感器 T1
+
 
 V2.0.3
 * 修复开发者配置问题，可以使用自己开发者信息。
