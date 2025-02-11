@@ -1,5 +1,5 @@
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass
-from homeassistant.components.button import ButtonDeviceClass
+from homeassistant.components.event import EventDeviceClass
 from homeassistant.components.climate import (
     FAN_AUTO,
     FAN_HIGH,
@@ -806,6 +806,111 @@ AIOT_DEVICE_MAPPING = [
             },
         ],
     },
+    ##################################晾衣机##################################
+    {
+        # 智能晾衣机H1
+        "lumi.airer.acn001": ["Aqara", "Airer H1", ""],
+        "params": [
+            {
+                "cover": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "airer",
+                        "device_class": CoverDeviceClass.AWNING,
+                        "state_class": CoverState,
+                        "supported_features": CoverEntityFeature.OPEN
+                        | CoverEntityFeature.CLOSE
+                        | CoverEntityFeature.STOP,
+                    },
+                    MK_RESOURCES: {
+                        "is_closed": ("14.1.85", "_attr_is_closed"),
+                    },
+                }
+            },
+            {
+                "switch": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "switch",
+                        "unique_id_extra": "1",
+                    },
+                    MK_RESOURCES: {
+                        "toggle": ("4.21.85", "_attr_is_on"),
+                    },
+                }
+            },
+            {
+                "switch": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "switch",
+                        "entity_name": "风干",
+                        "unique_id_extra": "2",
+                    },
+                    MK_RESOURCES: {
+                        "toggle": ("4.66.85", "_attr_is_on"),
+                    },
+                }
+            },
+            {
+                "switch": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "switch",
+                        "entity_name": "烘干",
+                        "unique_id_extra": "3",
+                    },
+                    MK_RESOURCES: {
+                        "toggle": ("4.67.85", "_attr_is_on"),
+                    },
+                }
+            },
+            {
+                "switch": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "switch",
+                        "entity_name": "消毒",
+                        "unique_id_extra": "4",
+                    },
+                    MK_RESOURCES: {
+                        "toggle": ("4.22.85", "_attr_is_on"),
+                    },
+                }
+            },
+        ],
+    },
+    {
+        # Aqara智能晾衣机 Lite
+        "lumi.airer.acn02": ["Aqara", "Airer Lite", ""],
+        "params": [
+            {
+                "cover": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "airer",
+                        "device_class": CoverDeviceClass.AWNING,
+                        "state_class": CoverState,
+                        "supported_features": CoverEntityFeature.OPEN
+                        | CoverEntityFeature.CLOSE
+                        | CoverEntityFeature.STOP
+                        | CoverEntityFeature.SET_POSITION,
+                    },
+                    MK_RESOURCES: {
+                        "is_closed": ("14.1.85", "_attr_is_closed"),
+                        "current_cover_position": (
+                            "1.1.85",
+                            "_attr_current_cover_position",
+                        ),
+                    },
+                }
+            },
+            {
+                "switch": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "switch",
+                    },
+                    MK_RESOURCES: {
+                        "toggle": ("14.2.85", "_attr_is_on"),
+                    },
+                }
+            },
+        ],
+    },
     ##################################无线开关##################################
     {
         # 无线开关（贴墙式单键版）
@@ -858,12 +963,12 @@ AIOT_DEVICE_MAPPING = [
         "lumi.remote.acn007": ["Aqara", "Single Wall Button E1", "WXKG16LM"],  # noqa: F601
         "params": [
             {
-                "button": {
+                "event": {
                     MK_INIT_PARAMS: {
-                        MK_HASS_NAME: "action",
-                        "device_class": ButtonDeviceClass.IDENTIFY,
+                        MK_HASS_NAME: "button",
+                        "device_class": EventDeviceClass.BUTTON,
                     },
-                    MK_RESOURCES: {"button": ("13.1.85", "_attr_press_type")},
+                    MK_RESOURCES: {"button": ("13.1.85", "_attr_trigger")},
                 }
             }
         ],
@@ -898,12 +1003,12 @@ AIOT_DEVICE_MAPPING = [
         ],
         "params": [
             {
-                "button": {
+                "event": {
                     MK_INIT_PARAMS: {
-                        MK_HASS_NAME: "action",
-                        "device_class": ButtonDeviceClass.IDENTIFY,
+                        MK_HASS_NAME: "button",
+                        "device_class": EventDeviceClass.BUTTON,
                     },
-                    MK_RESOURCES: {"button": ("13.{}.85", "_attr_press_type")},
+                    MK_RESOURCES: {"button": ("13.{}.85", "_attr_trigger")},
                     MK_MAPPING_PARAMS: {"ch_count": 2},
                 }
             }
@@ -915,12 +1020,12 @@ AIOT_DEVICE_MAPPING = [
         "lumi.remote.b486opcn01": ["Aqara", "Wireless Remote Switch (Four Rocker)", ""],
         "params": [
             {
-                "button": {
+                "event": {
                     MK_INIT_PARAMS: {
-                        MK_HASS_NAME: "action",
-                        "device_class": ButtonDeviceClass.IDENTIFY,
+                        MK_HASS_NAME: "button",
+                        "device_class": EventDeviceClass.BUTTON,
                     },
-                    MK_RESOURCES: {"button": ("13.{}.85", "_attr_press_type")},
+                    MK_RESOURCES: {"button": ("13.{}.85", "_attr_trigger")},
                     MK_MAPPING_PARAMS: {"ch_count": 4},
                 }
             }
@@ -932,12 +1037,12 @@ AIOT_DEVICE_MAPPING = [
         "lumi.remote.b686opcn01": ["Aqara", "Wireless Remote Switch (Six Rocker)", ""],
         "params": [
             {
-                "button": {
+                "event": {
                     MK_INIT_PARAMS: {
-                        MK_HASS_NAME: "action",
-                        "device_class": ButtonDeviceClass.IDENTIFY,
+                        MK_HASS_NAME: "button",
+                        "device_class": EventDeviceClass.BUTTON,
                     },
-                    MK_RESOURCES: {"button": ("13.{}.85", "_attr_press_type")},
+                    MK_RESOURCES: {"button": ("13.{}.85", "_attr_trigger")},
                     MK_MAPPING_PARAMS: {"ch_count": 6},
                 }
             }
@@ -949,12 +1054,12 @@ AIOT_DEVICE_MAPPING = [
         "lumi.remote.rkba01": ["Aqara", "Wireless rotary switch H1", ""],
         "params": [
             {
-                "button": {
+                "event": {
                     MK_INIT_PARAMS: {
-                        MK_HASS_NAME: "action",
-                        "device_class": ButtonDeviceClass.IDENTIFY,
+                        MK_HASS_NAME: "button",
+                        "device_class": EventDeviceClass.BUTTON,
                     },
-                    MK_RESOURCES: {"button": ("13.1.85", "_attr_press_type")},
+                    MK_RESOURCES: {"button": ("13.1.85", "_attr_trigger")},
                 }
             },
             {

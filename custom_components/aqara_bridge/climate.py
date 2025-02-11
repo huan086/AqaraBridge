@@ -237,12 +237,6 @@ class AiotAirrtcTcpecn02Entity(AiotEntityBase, ClimateEntity):
         self._attr_target_temperature_high = kwargs.get("max_temp")
         self._attr_target_temperature_low = kwargs.get("min_temp")
 
-        # 临时假数据
-        # self._attr_hvac_mode = HVACMode.OFF
-        # self._attr_target_temperature = float(26)
-        # self._attr_fan_mode = FAN_OFF
-        # self._attr_swing_mode = SWING_OFF
-
     def convert_res_to_attr(self, res_name, res_value):
         if res_name == "current_temperature":
             return int(res_value)

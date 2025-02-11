@@ -4,25 +4,41 @@
 
 [![version](https://img.shields.io/github/manifest-json/v/bernard3378/AqaraBridge?filename=custom_components%2Faqara_bridge%2Fmanifest.json)](https://github.com/bernard3378/AqaraBridge/releases/latest) [![stars](https://img.shields.io/github/stars/bernard3378/AqaraBridge)](https://github.com/bernard3378/AqaraBridge/stargazers) [![issues](https://img.shields.io/github/issues/bernard3378/AqaraBridge)](https://github.com/bernard3378/AqaraBridge/issues) [![hacs](https://img.shields.io/badge/HACS-Default-orange.svg)](https://hacs.xyz)
 
-
+## 一键添加到HACS
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=bernard3378&repository=AqaraBridge&category=integration)
 ## 需要开发者账号支持
 
 申请AqaraIOT开发者：[Aqara IoT Cloud](https://developer.aqara.com/register).
 
 * 提示：如果在安装过程中出现此集成不支持通过UI配置，大概率是因为rocketmq的链接库不存在，当前版本仅自动集成了x86和arm64。
+* [V2.1.1]已加入更多架构支持，如果还出现类似问题请复制日志信息提Issue
 * 当前支持通过hacs商店进行配置，自定义存储库URL: bernard3378/AqaraBridge
 
 重点提示：
-* 需要自己申请aqara的开发者账号，使用插件自带的信息会导致状态丢失。
+* 需要自己申请aqara的开发者账号。
 * 申请流程1：[注册账号](https://developer.aqara.com/register)，申请通过以后需要选择个人认证，输入姓名和身份证号进行开发者认证。
 * 申请流程2：申请通过以后就会有一个DEMO应用，进入项目管理-->详情-->消息推送-->编辑-->选择中国服务、MQ消息推送、消息密钥默认应该只有一个、全订阅-->保存
 * 申请流程3：返回概况，Appid&密钥这个点击展开，找到中国服务，记录appId、appkey（需要点击小眼睛）、keyid，然后将这三个参数填写到插件对应的三个值上。
 * 消息查看：如果需要确认消息可以将这个插件的日志级别改成info可以查看对应消息情况。
 
 ## 版本修订
-当前版本 V2.1.0 修复大部分错误并添加大量设备，为当前最稳定版本
+当前版本 V2.1.1 常规更新，为当前最稳定版本
 
-V2.1.0
+V2.1.1
+* 修复窗帘位置同步不及时问题
+* 修改将被HA弃用的函数
+* 完善arm64架构rocketmq支持
+* 优化初始化时可能创建无法管理的实体的问题
+* 优化冷启动向导相关
+* 优化支持不完善的设备弹出大量警告问题
+* 按钮button改为event类
+
+- 添加设备：
+- 晾衣架类：
+- - lumi.airer.acn001 - 智能晾衣机H1
+- - lumi.airer.acn02 - Aqara智能晾衣机 Lite
+
+V2.1.0 - 修复大部分错误并添加大量设备
 * 重写空调控制器类
 * 修复rocketmq启动时阻塞HA初始化问题
 * 修复了调用某些HA已废弃/将要废弃常量问题

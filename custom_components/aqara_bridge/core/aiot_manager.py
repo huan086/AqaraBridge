@@ -27,21 +27,24 @@ _LOGGER = logging.getLogger(__name__)
 def __init_rocketmq():
     import platform, os
 
-    fp = "%s/custom_components/aqara_bridge/3rd_libs/%s/librocketmq.so" % (
+    machine = platform.machine()
+    if machine in ("aarch64", "aarch64_be", "armv8b", "armv8l"):
+        machine = "arm64"
+
+    fp = "{}/custom_components/aqara_bridge/3rd_libs/{}/librocketmq.so".format(
         os.path.abspath("."),
-        platform.machine(),
+        machine,
     )
     if platform.system() != "Linux" or not os.path.exists(fp):
         _LOGGER.error(
-            f"AqaraBridge need rocketmq, you need install it. Not Fund librocketmq from %s."
-            % fp
+            f"AqaraBridge need rocketmq, you need install it. Not Fund librocketmq from {fp}."
         )
         return
     target_p = "/usr/local/lib/librocketmq.so"
     if not os.path.exists(target_p):
         import shutil
 
-        _LOGGER.warning(f"Copy librocketmq from %s to %s" % (fp, target_p))
+        _LOGGER.info(f"Copy librocketmq from {fp} to {target_p}")
         shutil.copyfile(fp, target_p)
 
 
@@ -280,7 +283,8 @@ class AiotEntityBase(Entity):
                 resp = await self.async_set_res_value(res_name, res_value)
             # TODO 这里需要判断是否调用成功，再进行赋值
             self.__setattr__(tup_res[1], attr_value)
-            self.async_write_ha_state()
+            self.schedule_update_ha_state()
+            # self.async_write_ha_state()
             return resp
 
     async def async_set_attr(self, res_id, res_value, timestamp, write_ha_state=True):
@@ -303,7 +307,8 @@ class AiotEntityBase(Entity):
         if current_value != attr_value:
             self.__setattr__(tup_res[1], attr_value)
             if write_ha_state:
-                self.async_write_ha_state()  # 初始化的时候不能执行这句话，会创建其他乱七八糟的对象
+                self.schedule_update_ha_state()
+                # self.async_write_ha_state()  # 初始化的时候不能执行这句话，会创建其他乱七八糟的对象
 
     async def async_device_connection(self, Open=False):
         """enable/disable device connection"""
@@ -480,7 +485,7 @@ class AiotManager:
                                     x["resourceId"], x["value"], x["time"]
                                 )
                         if not is_support:
-                            _LOGGER.warn(
+                            _LOGGER.info(
                                 "[msg_callback, unsupport_resources]{}, {}, {}:{}".format(
                                     ts_format_str_ms(x["time"], self._hass),
                                     x["subjectId"],
@@ -520,9 +525,9 @@ class AiotManager:
                 else:  # 其他事件暂不处理
                     pass
             else:
-                _LOGGER.warn(
+                _LOGGER.info(
                     "[msg_callback, {}]msg_time:{}, msg_data:{}".format(
-                        "unknow_message", msg_time, msg["data"]
+                        "unknown_message", msg_time, msg["data"]
                     )
                 )
         except Exception as _:
