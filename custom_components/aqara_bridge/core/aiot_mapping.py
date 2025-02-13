@@ -607,6 +607,33 @@ AIOT_DEVICE_MAPPING = [
             },
         ],
     },
+    {
+        # 智能灯带驱动器 T1 (60W/120W/240W)
+        "lumi.dimmer.acn003": ["Aqara", "LED Strip Dimmer T1", "ZNDDQDQ11LM"],
+        "lumi.dimmer.acn004": ["Aqara", "LED Strip Dimmer T1", "ZNDDQDQ12LM"],
+        "lumi.dimmer.acn005": ["Aqara", "LED Strip Dimmer T1", "ZNDDQDQ13LM"],
+        "params": [
+            {
+                "light": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "light",
+                        "supported_features": LightEntityFeature.EFFECT,
+                        "supported_color_modes": {
+                            ColorMode.COLOR_TEMP,
+                        },
+                        "color_mode": ColorMode.COLOR_TEMP,
+                        "min_color_temp_kelvin": 2700,
+                        "max_color_temp_kelvin": 6500,
+                    },
+                    MK_RESOURCES: {
+                        "toggle": ("4.1.85", "_attr_is_on"),
+                        "brightness": ("1.7.85", "_attr_brightness"),
+                        "color_temp_kelvin": ("1.9.85", "_attr_color_temp_kelvin"),
+                    },
+                }
+            }
+        ],
+    },
     # RGB类
     {
         # Aqara智能调光模块 T1
