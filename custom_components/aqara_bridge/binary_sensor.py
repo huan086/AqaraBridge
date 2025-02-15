@@ -21,7 +21,6 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     manager: AiotManager = hass.data[DOMAIN][HASS_DATA_AIOT_MANAGER]
     cls_entities = {
         "motion": AiotMotionBinarySensor,
-        "exist": AiotExistBinarySensor,
         "contact": AiotDoorBinarySensor,
         "default": AiotBinarySensorEntity,
     }
@@ -33,7 +32,6 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class AiotBinarySensorEntity(AiotEntityBase, BinarySensorEntity):
     def __init__(self, hass, device, res_params, channel=None, **kwargs):
         AiotEntityBase.__init__(self, hass, device, res_params, TYPE, channel, **kwargs)
-        self._attr_state_class = kwargs.get("state_class")
         self._extra_state_attributes.extend(["trigger_time", "trigger_dt"])
 
     def convert_res_to_attr(self, res_name, res_value):
@@ -43,6 +41,8 @@ class AiotBinarySensorEntity(AiotEntityBase, BinarySensorEntity):
             return int(res_value)
         if res_name == "voltage":
             return format(float(res_value) / 1000, ".3f")
+        if res_name == "exist":
+            return int(res_value)
         if res_name in ["moisture", "smoke", "gas"]:
             return int(res_value) != 0
         return super().convert_res_to_attr(res_name, res_value)
@@ -156,38 +156,6 @@ class AiotMotionBinarySensor(AiotBinarySensorEntity, BinarySensorEntity):
             self.hass.add_job(self._start_no_motion_timer, delay)
         _LOGGER.info("{}conver_value:{}".format(log_info, bool(res_value)))
         return bool(res_value)
-
-
-class AiotExistBinarySensor(AiotBinarySensorEntity, BinarySensorEntity):
-    def __init__(self, hass, device, res_params, channel=None, **kwargs):
-        AiotBinarySensorEntity.__init__(
-            self, hass, device, res_params, channel, **kwargs
-        )
-        self._extra_state_attributes.extend(
-            [
-                "direction_status",
-                "content_direction",
-                "content_leftright",
-            ]
-        )
-        self._attr_direction_status = None
-
-    @property
-    def direction_status(self):
-        return self._attr_direction_status
-
-    @property
-    def content_direction(self):
-        return "monitor_type:0:无向检测,direction_status:0:进入,1:离开,6:接近,7:远离"
-
-    @property
-    def content_leftright(self):
-        return "monitor_type:1:左右检测,direction_status:2:左进 3:右出 4:右进 5:左出 6:接近 7:远离"
-
-    def convert_res_to_attr(self, res_name, res_value):
-        if res_name in ["firmware_version", "zigbee_lqi", "voltage"]:
-            return super().convert_res_to_attr(res_name, res_value)
-        return res_value
 
 
 class AiotDoorBinarySensor(AiotBinarySensorEntity, BinarySensorEntity):

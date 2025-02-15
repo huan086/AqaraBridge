@@ -601,6 +601,7 @@ class AiotManager:
             )
             for j in range(len(params)):
                 ch_count = None
+                ch_start = None
                 if j == 0:
                     # 这里需要处理多通道特殊设备
                     if device.model == "lumi.airrtc.vrfegl01":
@@ -625,6 +626,7 @@ class AiotManager:
 
                 if params[j].get(MK_MAPPING_PARAMS):
                     ch_count = params[j][MK_MAPPING_PARAMS].get("ch_count", None)
+                    ch_start = params[j][MK_MAPPING_PARAMS].get("ch_start", None)
 
                 if ch_count:
                     for i in range(ch_count):
@@ -632,13 +634,22 @@ class AiotManager:
                         t = cls_list.get(attr, None)
                         if t is None:
                             t = cls_list["default"]
-                        instance = t(
-                            self._hass,
-                            device,
-                            params[j][MK_RESOURCES],
-                            i + 1,
-                            **params[j].get(MK_INIT_PARAMS) or {},
-                        )
+                        if ch_start:
+                            instance = t(
+                                self._hass,
+                                device,
+                                params[j][MK_RESOURCES],
+                                i + ch_start,
+                                **params[j].get(MK_INIT_PARAMS) or {},
+                            )
+                        else:
+                            instance = t(
+                                self._hass,
+                                device,
+                                params[j][MK_RESOURCES],
+                                i + 1,
+                                **params[j].get(MK_INIT_PARAMS) or {},
+                            )
                         self._devices_entities[device.did].append(instance)
                         entities.append(instance)
                 else:

@@ -22,7 +22,62 @@
 * 消息查看：如果需要确认消息可以将这个插件的日志级别改成info可以查看对应消息情况。
 
 ## 版本修订
-当前版本 V2.1.1 常规更新，为当前最稳定版本
+当前版本 V2.1.2 常规更新，为当前最稳定版本
+
+V2.1.2
+* 优化初始化向导提示
+* 优化设备初始化流程
+* 优化人体场景传感器FP2状态管理
+* 优化人体存在传感器FP1/FP1E移动事件
+
+- 添加设备：
+- 网关类：
+- - lumi.gateway.acn008 - 网关 M1S（第二代）
+- - lumi.gateway.acn012 - 网关 M3
+
+- 摄像机类：
+- - lumi.camera.gwpagl01 - 智能摄像机G3（网关版） - 支持手势等事件
+
+- 开关/插座类：
+- - lumi.switch.acn048 - 卡农 智能墙壁开关 Z1（单键版）
+- - lumi.switch.acn049 - 卡农 智能墙壁开关 Z1（双键版）
+- - lumi.switch.acn054 - 卡农 智能墙壁开关 Z1（三键版）
+- - lumi.switch.acn055 - 卡农 智能墙壁开关 Z1（四键版）
+- - lumi.switch.acn056 - 卡农 智能墙壁开关 Z1 Pro（单键版）
+- - lumi.switch.acn057 - 卡农 智能墙壁开关 Z1 Pro（双键版）
+- - lumi.switch.acn058 - 卡农 智能墙壁开关 Z1 Pro（三键版）
+- - lumi.switch.acn059 - 卡农 智能墙壁开关 Z1 Pro（四键版）
+- - lumi.switch.acn040 - 智能墙壁开关 E1（零火线三键版）
+- - lumi.switch.acn041 - 智能墙壁开关 J1（单火线单键版）
+- - lumi.switch.acn042 - 智能墙壁开关 J1（单火线双键版）
+- - lumi.switch.acn043 - 智能墙壁开关 J1（单火线三键版）
+- - lumi.switch.acn044 - 智能墙壁开关 J1（零火线单键版）
+- - lumi.switch.acn045 - 智能墙壁开关 J1（零火线双键版）
+- - lumi.switch.acn046 - 智能墙壁开关 J1（零火线三键版）
+- - lumi.switch.acn062 - 智能墙壁开关 Q1（单键版）
+- - lumi.switch.acn063 - 智能墙壁开关 Q1（双键版）
+- - lumi.switch.acn065 - 智能墙壁开关 Q1（四键版）
+- - lumi.switch.acn047 - 双路控制模块 T2
+- - lumi.sensor_switch.v1 - 无线开关
+- - lumi.sensor_switch.v2 - 无线开关
+- - lumi.sensor_switch.aq2 - 无线开关
+
+- 灯控类：（感谢XaoflySho提交的PR）
+- - lumi.dimmer.acn003 - 智能灯带驱动器 T1
+- - lumi.dimmer.acn004 - 智能灯带驱动器 T1（120W）
+- - lumi.dimmer.acn005 - 智能灯带驱动器 T1（240W）
+
+- 空调温控类：
+- - aqara.airrtc.acn02 - 温控伴侣 T1（室内机）
+- - lumi.airrtc.pcacn2 - 智能温控器 S3
+- - lumi.airrtc.pcacn2_thermostat - 智能温控器 S3
+- - lumi.airrtc.agl001 - 智能阀式温控器 E1
+
+- 窗帘类：
+- - lumi.curtain.vagl02 - 智能管状电机 T1
+- - lumi.curtain.acn002 - 智能卷帘伴侣 E1
+
+
 
 V2.1.1
 * 修复窗帘位置同步不及时问题

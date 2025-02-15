@@ -1,5 +1,4 @@
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass
-from homeassistant.components.event import EventDeviceClass
 from homeassistant.components.climate import (
     FAN_AUTO,
     FAN_HIGH,
@@ -17,6 +16,7 @@ from homeassistant.components.cover import (
     CoverEntityFeature,
     CoverState,
 )
+from homeassistant.components.event import EventDeviceClass
 from homeassistant.components.light import ColorMode, LightEntityFeature
 from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass
 from homeassistant.const import (
@@ -26,6 +26,18 @@ from homeassistant.const import (
     UnitOfEnergy,
     UnitOfPower,
     UnitOfTemperature,
+)
+
+from .const import (
+    GESTURE_MAPPING,
+    PET_MAPPING,
+    HUMAN_MAPPING,
+    MOVING_MAPPING,
+    SOUND_MAPPING,
+    KN_BUTTON_MAPPING,
+    KN_BUTTON_3_MAPPING,
+    KN_SLIDE_MAPPING,
+    FP_MOTION_MAPPING,
 )
 
 # AiotDevice Mapping
@@ -40,6 +52,7 @@ AIOT_DEVICE_MAPPING = [
         "lumi.gateway.aeu01": ["Aqara", "Gateway M1S", "ZHWG15LM"],
         "lumi.gateway.acn01": ["Aqara", "Gateway M1S", "ZHWG15LM"],
         "lumi.gateway.acn004": ["Aqara", "Gateway M1S 22", "ZHWG15LM"],
+        "lumi.gateway.acn008": ["Aqara", "Gateway M1S Gen2", ""],
         "lumi.gateway.agl002": ["Aqara", "Gateway M1S Gen2", "ZHWG15LM"],
         "lumi.gateway.aqhm02": ["Aqara", "Gateway", "ZHWG15LM"],
         "lumi.gateway.aqhm01": ["Aqara", "Gateway", "ZHWG15LM"],
@@ -64,7 +77,7 @@ AIOT_DEVICE_MAPPING = [
                     MK_INIT_PARAMS: {
                         MK_HASS_NAME: "illuminance",
                         "device_class": SensorDeviceClass.ILLUMINANCE,
-                        "state_class": "measurement",
+                        "state_class": SensorStateClass.MEASUREMENT,
                         "unit_of_measurement": LIGHT_LUX,
                     },
                     MK_RESOURCES: {"illumination": ("0.3.85", "_attr_native_value")},
@@ -72,7 +85,7 @@ AIOT_DEVICE_MAPPING = [
             },
         ],
     },
-    ###########################绿米H1、E1、M2、集悦S1网关#############################
+    ###########################绿米H1、E1、M2、M3、集悦S1网关#############################
     {
         "lumi.gateway.sacn01": ["Aqara", "Smart Hub H1", "QBCZWG11LM"],
         "lumi.gateway.aqcn02": ["Aqara", "Hub E1", "ZHWG16LM"],
@@ -81,11 +94,652 @@ AIOT_DEVICE_MAPPING = [
         "lumi.gateway.iragl7": ["Aqara", "GateWay M2", ""],
         "lumi.gateway.iragl8": ["Aqara", "GateWay M2 22", ""],
         "lumi.gateway.aq1": ["Aqara", "GateWay M2", ""],
+        "lumi.gateway.acn012": ["Aqara", "GateWay M3", ""],
         "lumi.controller.a4acn1": ["Aqara", "GateWay JY S1", ""],
         "params": [],
     },
+    ###############################网关/摄像机########################################
+    {
+        "lumi.camera.gwpagl01": ["Aqara", "Camera G3 (Gateway)", ""],
+        "params": [
+            {
+                "event": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "camera",
+                        "event_types": [
+                            "1",
+                            "2",
+                            "3",
+                            "4",
+                            "5",
+                            "6",
+                            "7",
+                            "8",
+                            "9",
+                            "10",
+                        ],
+                        "unique_id_extra": "face",
+                        "entity_name": "人脸识别",
+                    },
+                    MK_RESOURCES: {
+                        "detect_face_event": ("13.95.85", "_attr_native_value"),
+                    },
+                }
+            },
+            {
+                "event": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "camera",
+                        "event_types_mapping": HUMAN_MAPPING,
+                        "unique_id_extra": "human",
+                        "entity_name": "人体识别",
+                    },
+                    MK_RESOURCES: {
+                        "detect_human_event": ("13.97.85", "_attr_native_value"),
+                    },
+                }
+            },
+            {
+                "event": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "camera",
+                        "event_types_mapping": PET_MAPPING,
+                        "unique_id_extra": "pet",
+                        "entity_name": "宠物识别",
+                    },
+                    MK_RESOURCES: {
+                        "detect_pets_event": ("13.98.85", "_attr_native_value"),
+                    },
+                }
+            },
+            {
+                "event": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "camera",
+                        "event_types_mapping": GESTURE_MAPPING,
+                        "unique_id_extra": "gesture",
+                        "entity_name": "手势识别",
+                    },
+                    MK_RESOURCES: {
+                        "detect_gesture_event": ("13.96.85", "_attr_native_value"),
+                    },
+                }
+            },
+            {
+                "event": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "camera",
+                        "event_types_mapping": MOVING_MAPPING,
+                        "unique_id_extra": "moving",
+                        "entity_name": "移动侦测",
+                    },
+                    MK_RESOURCES: {
+                        "detect_moving_event": ("3.21.85", "_attr_native_value"),
+                    },
+                }
+            },
+            {
+                "event": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "camera",
+                        "event_types_mapping": SOUND_MAPPING,
+                        "unique_id_extra": "sound",
+                        "entity_name": "异常声音",
+                    },
+                    MK_RESOURCES: {
+                        "detect_sound_event": ("3.22.85", "_attr_native_value"),
+                    },
+                }
+            },
+        ],
+    },
     ################################墙壁开关#########################################
     ###单键
+    {
+        # 卡农 智能墙壁开关 Z1 Pro（单键版）
+        "lumi.switch.acn056": ["Aqara", "KN Wall Switch Z1 Pro (Single Rocker)", ""],
+        "params": [
+            {
+                "switch": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "wall_switch",
+                    },
+                    MK_RESOURCES: {
+                        "toggle": ("4.1.85", "_attr_is_on"),
+                    },
+                }
+            },
+            {
+                "event": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "default",
+                        "event_mapping": KN_BUTTON_MAPPING,
+                        "entity_name": "无线开关",
+                    },
+                    MK_RESOURCES: {"event": ("13.21.85", "_attr_trigger")},
+                }
+            },
+            {
+                "event": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "slide",
+                        "event_mapping": KN_SLIDE_MAPPING,
+                        "entity_name": "滑条",
+                    },
+                    MK_RESOURCES: {"event": ("13.1.85", "_attr_trigger")},
+                }
+            },
+            {
+                "sensor": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "power",
+                        "device_class": SensorDeviceClass.POWER,
+                        "state_class": SensorStateClass.MEASUREMENT,
+                        "unit_of_measurement": UnitOfPower.WATT,
+                    },
+                    MK_RESOURCES: {"current": ("0.14.85", "_attr_native_value")},
+                }
+            },
+            {
+                "sensor": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "energy",
+                        "device_class": SensorDeviceClass.ENERGY,
+                        "state_class": "total_increasing",
+                        "unit_of_measurement": UnitOfEnergy.KILO_WATT_HOUR,
+                    },
+                    MK_RESOURCES: {"energy": ("0.13.85", "_attr_native_value")},
+                }
+            },
+        ],
+    },
+    {
+        # 卡农 智能墙壁开关 Z1 Pro（双键版）
+        "lumi.switch.acn057": ["Aqara", "KN Wall Switch Z1 Pro (Double Rocker)", ""],
+        "params": [
+            {
+                "switch": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "wall_switch",
+                    },
+                    MK_RESOURCES: {
+                        "toggle": ("4.{}.85", "_attr_is_on"),
+                    },
+                    MK_MAPPING_PARAMS: {"ch_count": 2},
+                }
+            },
+            {
+                "event": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "default",
+                        "event_mapping": KN_BUTTON_MAPPING,
+                        "entity_name": "无线开关",
+                    },
+                    MK_RESOURCES: {"event": ("13.{}.85", "_attr_trigger")},
+                    MK_MAPPING_PARAMS: {"ch_count": 2, "ch_start": 21},
+                }
+            },
+            {
+                "event": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "slide",
+                        "event_mapping": KN_SLIDE_MAPPING,
+                        "entity_name": "滑条",
+                    },
+                    MK_RESOURCES: {"event": ("13.1.85", "_attr_trigger")},
+                }
+            },
+            {
+                "sensor": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "power",
+                        "device_class": SensorDeviceClass.POWER,
+                        "state_class": SensorStateClass.MEASUREMENT,
+                        "unit_of_measurement": UnitOfPower.WATT,
+                    },
+                    MK_RESOURCES: {"power": ("0.12.85", "_attr_native_value")},
+                }
+            },
+            {
+                "sensor": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "energy",
+                        "device_class": SensorDeviceClass.ENERGY,
+                        "state_class": "total_increasing",
+                        "unit_of_measurement": UnitOfEnergy.KILO_WATT_HOUR,
+                    },
+                    MK_RESOURCES: {"energy": ("0.13.85", "_attr_native_value")},
+                }
+            },
+        ],
+    },
+    {
+        # 卡农 智能墙壁开关 Z1 Pro（三键版）
+        "lumi.switch.acn058": ["Aqara", "KN Wall Switch Z1 Pro (Three Rocker)", ""],
+        "params": [
+            {
+                "switch": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "wall_switch",
+                    },
+                    MK_RESOURCES: {
+                        "toggle": ("4.{}.85", "_attr_is_on"),
+                    },
+                    MK_MAPPING_PARAMS: {"ch_count": 3},
+                }
+            },
+            {
+                "event": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "default",
+                        "event_mapping": KN_BUTTON_3_MAPPING,
+                        "entity_name": "无线开关",
+                    },
+                    MK_RESOURCES: {"event": ("13.{}.85", "_attr_trigger")},
+                    MK_MAPPING_PARAMS: {"ch_count": 3, "ch_start": 21},
+                }
+            },
+            {
+                "event": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "slide",
+                        "event_mapping": KN_SLIDE_MAPPING,
+                        "entity_name": "滑条",
+                    },
+                    MK_RESOURCES: {"event": ("13.1.85", "_attr_trigger")},
+                }
+            },
+            {
+                "sensor": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "power",
+                        "device_class": SensorDeviceClass.POWER,
+                        "state_class": SensorStateClass.MEASUREMENT,
+                        "unit_of_measurement": UnitOfPower.WATT,
+                    },
+                    MK_RESOURCES: {"power": ("0.12.85", "_attr_native_value")},
+                }
+            },
+            {
+                "sensor": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "energy",
+                        "device_class": SensorDeviceClass.ENERGY,
+                        "state_class": "total_increasing",
+                        "unit_of_measurement": UnitOfEnergy.KILO_WATT_HOUR,
+                    },
+                    MK_RESOURCES: {"energy": ("0.13.85", "_attr_native_value")},
+                }
+            },
+        ],
+    },
+    {
+        # 卡农 智能墙壁开关 Z1 Pro（四键版）
+        "lumi.switch.acn059": ["Aqara", "KN Wall Switch Z1 Pro (Four Rocker)", ""],
+        # 智能墙壁开关 Q1（四键版）
+        "lumi.switch.acn065": ["Aqara", "Wall Switch Q1 (Four Rocker)", ""],
+        "params": [
+            {
+                "switch": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "wall_switch",
+                    },
+                    MK_RESOURCES: {
+                        "toggle": ("4.{}.85", "_attr_is_on"),
+                    },
+                    MK_MAPPING_PARAMS: {"ch_count": 3},
+                }
+            },
+            {
+                "event": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "default",
+                        "event_mapping": KN_BUTTON_3_MAPPING,
+                        "entity_name": "无线开关",
+                    },
+                    MK_RESOURCES: {"event": ("13.{}.85", "_attr_trigger")},
+                    MK_MAPPING_PARAMS: {"ch_count": 4, "ch_start": 21},
+                }
+            },
+            {
+                "event": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "slide",
+                        "event_mapping": KN_SLIDE_MAPPING,
+                        "entity_name": "滑条",
+                    },
+                    MK_RESOURCES: {"event": ("13.1.85", "_attr_trigger")},
+                }
+            },
+            {
+                "sensor": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "power",
+                        "device_class": SensorDeviceClass.POWER,
+                        "state_class": SensorStateClass.MEASUREMENT,
+                        "unit_of_measurement": UnitOfPower.WATT,
+                    },
+                    MK_RESOURCES: {"power": ("0.12.85", "_attr_native_value")},
+                }
+            },
+            {
+                "sensor": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "energy",
+                        "device_class": SensorDeviceClass.ENERGY,
+                        "state_class": "total_increasing",
+                        "unit_of_measurement": UnitOfEnergy.KILO_WATT_HOUR,
+                    },
+                    MK_RESOURCES: {"energy": ("0.13.85", "_attr_native_value")},
+                }
+            },
+        ],
+    },
+    {
+        # 卡农 智能墙壁开关 Z1（单键版）
+        "lumi.switch.acn054": ["Aqara", "KN Wall Switch Z1 (Single Rocker)", ""],
+        "params": [
+            {
+                "switch": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "wall_switch",
+                    },
+                    MK_RESOURCES: {
+                        "toggle": ("4.1.85", "_attr_is_on"),
+                    },
+                }
+            },
+            {
+                "event": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "default",
+                        "event_mapping": KN_BUTTON_MAPPING,
+                        "entity_name": "无线开关",
+                    },
+                    MK_RESOURCES: {"event": ("13.21.85", "_attr_trigger")},
+                }
+            },
+            {
+                "sensor": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "power",
+                        "device_class": SensorDeviceClass.POWER,
+                        "state_class": SensorStateClass.MEASUREMENT,
+                        "unit_of_measurement": UnitOfPower.WATT,
+                    },
+                    MK_RESOURCES: {"power": ("0.12.85", "_attr_native_value")},
+                }
+            },
+            {
+                "sensor": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "energy",
+                        "device_class": SensorDeviceClass.ENERGY,
+                        "state_class": "total_increasing",
+                        "unit_of_measurement": UnitOfEnergy.KILO_WATT_HOUR,
+                    },
+                    MK_RESOURCES: {"energy": ("0.13.85", "_attr_native_value")},
+                }
+            },
+        ],
+    },
+    {
+        # 卡农 智能墙壁开关 Z1（双键版）
+        "lumi.switch.acn054": ["Aqara", "KN Wall Switch Z1 (Double Rocker)", ""],
+        "params": [
+            {
+                "switch": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "wall_switch",
+                    },
+                    MK_RESOURCES: {
+                        "toggle": ("4.{}.85", "_attr_is_on"),
+                    },
+                    MK_MAPPING_PARAMS: {"ch_count": 2},
+                }
+            },
+            {
+                "event": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "default",
+                        "event_mapping": KN_BUTTON_3_MAPPING,
+                        "entity_name": "无线开关",
+                    },
+                    MK_RESOURCES: {"event": ("13.{}.85", "_attr_trigger")},
+                    MK_MAPPING_PARAMS: {"ch_count": 2, "ch_start": 21},
+                }
+            },
+            {
+                "sensor": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "power",
+                        "device_class": SensorDeviceClass.POWER,
+                        "state_class": SensorStateClass.MEASUREMENT,
+                        "unit_of_measurement": UnitOfPower.WATT,
+                    },
+                    MK_RESOURCES: {"power": ("0.12.85", "_attr_native_value")},
+                }
+            },
+            {
+                "sensor": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "energy",
+                        "device_class": SensorDeviceClass.ENERGY,
+                        "state_class": "total_increasing",
+                        "unit_of_measurement": UnitOfEnergy.KILO_WATT_HOUR,
+                    },
+                    MK_RESOURCES: {"energy": ("0.13.85", "_attr_native_value")},
+                }
+            },
+        ],
+    },
+    {
+        # 卡农 智能墙壁开关 Z1（三键版）
+        "lumi.switch.acn054": ["Aqara", "KN Wall Switch Z1 (Three Rocker)", ""],
+        "params": [
+            {
+                "switch": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "wall_switch",
+                    },
+                    MK_RESOURCES: {
+                        "toggle": ("4.{}.85", "_attr_is_on"),
+                    },
+                    MK_MAPPING_PARAMS: {"ch_count": 3},
+                }
+            },
+            {
+                "event": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "default",
+                        "event_mapping": KN_BUTTON_3_MAPPING,
+                        "entity_name": "无线开关",
+                    },
+                    MK_RESOURCES: {"event": ("13.{}.85", "_attr_trigger")},
+                    MK_MAPPING_PARAMS: {"ch_count": 3, "ch_start": 21},
+                }
+            },
+            {
+                "sensor": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "power",
+                        "device_class": SensorDeviceClass.POWER,
+                        "state_class": SensorStateClass.MEASUREMENT,
+                        "unit_of_measurement": UnitOfPower.WATT,
+                    },
+                    MK_RESOURCES: {"power": ("0.12.85", "_attr_native_value")},
+                }
+            },
+            {
+                "sensor": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "energy",
+                        "device_class": SensorDeviceClass.ENERGY,
+                        "state_class": "total_increasing",
+                        "unit_of_measurement": UnitOfEnergy.KILO_WATT_HOUR,
+                    },
+                    MK_RESOURCES: {"energy": ("0.13.85", "_attr_native_value")},
+                }
+            },
+        ],
+    },
+    {
+        # 卡农 智能墙壁开关 Z1（四键版）
+        "lumi.switch.acn055": ["Aqara", "KN Wall Switch Z1 (Four Rocker)", ""],
+        "params": [
+            {
+                "switch": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "wall_switch",
+                    },
+                    MK_RESOURCES: {
+                        "toggle": ("4.{}.85", "_attr_is_on"),
+                    },
+                    MK_MAPPING_PARAMS: {"ch_count": 3},
+                }
+            },
+            {
+                "event": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "default",
+                        "event_mapping": KN_BUTTON_3_MAPPING,
+                        "entity_name": "无线开关",
+                    },
+                    MK_RESOURCES: {"event": ("13.{}.85", "_attr_trigger")},
+                    MK_MAPPING_PARAMS: {"ch_count": 4, "ch_start": 21},
+                }
+            },
+            {
+                "sensor": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "power",
+                        "device_class": SensorDeviceClass.POWER,
+                        "state_class": SensorStateClass.MEASUREMENT,
+                        "unit_of_measurement": UnitOfPower.WATT,
+                    },
+                    MK_RESOURCES: {"power": ("0.12.85", "_attr_native_value")},
+                }
+            },
+            {
+                "sensor": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "energy",
+                        "device_class": SensorDeviceClass.ENERGY,
+                        "state_class": "total_increasing",
+                        "unit_of_measurement": UnitOfEnergy.KILO_WATT_HOUR,
+                    },
+                    MK_RESOURCES: {"energy": ("0.13.85", "_attr_native_value")},
+                }
+            },
+        ],
+    },
+    {
+        # 智能墙壁开关 Q1（单键版）
+        "lumi.switch.acn062": ["Aqara", "Wall Switch Q1 (Single Rocker)", ""],
+        "params": [
+            {
+                "switch": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "wall_switch",
+                    },
+                    MK_RESOURCES: {
+                        "toggle": ("4.1.85", "_attr_is_on"),
+                    },
+                }
+            },
+            {
+                "event": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "default",
+                        "event_mapping": KN_BUTTON_MAPPING,
+                        "entity_name": "无线开关",
+                    },
+                    MK_RESOURCES: {"event": ("13.21.85", "_attr_trigger")},
+                }
+            },
+            {
+                "event": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "slide",
+                        "event_mapping": KN_SLIDE_MAPPING,
+                        "entity_name": "滑条",
+                    },
+                    MK_RESOURCES: {"event": ("13.1.85", "_attr_trigger")},
+                }
+            },
+            {
+                "sensor": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "power",
+                        "device_class": SensorDeviceClass.POWER,
+                        "state_class": SensorStateClass.MEASUREMENT,
+                        "unit_of_measurement": UnitOfPower.WATT,
+                    },
+                    MK_RESOURCES: {"power": ("0.12.85", "_attr_native_value")},
+                }
+            },
+            {
+                "sensor": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "energy",
+                        "device_class": SensorDeviceClass.ENERGY,
+                        "state_class": "total_increasing",
+                        "unit_of_measurement": UnitOfEnergy.KILO_WATT_HOUR,
+                    },
+                    MK_RESOURCES: {"energy": ("0.13.85", "_attr_native_value")},
+                }
+            },
+        ],
+    },
+    {
+        # 智能墙壁开关 Q1（双键版）
+        "lumi.switch.acn063": ["Aqara", "KN Wall Switch Q1 (Double Rocker)", ""],
+        "params": [
+            {
+                "switch": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "wall_switch",
+                    },
+                    MK_RESOURCES: {
+                        "toggle": ("4.{}.85", "_attr_is_on"),
+                    },
+                    MK_MAPPING_PARAMS: {"ch_count": 2},
+                }
+            },
+            {
+                "event": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "slide",
+                        "event_mapping": KN_SLIDE_MAPPING,
+                        "entity_name": "滑条",
+                    },
+                    MK_RESOURCES: {"event": ("13.1.85", "_attr_trigger")},
+                }
+            },
+            {
+                "sensor": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "power",
+                        "device_class": SensorDeviceClass.POWER,
+                        "state_class": SensorStateClass.MEASUREMENT,
+                        "unit_of_measurement": UnitOfPower.WATT,
+                    },
+                    MK_RESOURCES: {"power": ("0.12.85", "_attr_native_value")},
+                }
+            },
+            {
+                "sensor": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "energy",
+                        "device_class": SensorDeviceClass.ENERGY,
+                        "state_class": "total_increasing",
+                        "unit_of_measurement": UnitOfEnergy.KILO_WATT_HOUR,
+                    },
+                    MK_RESOURCES: {"energy": ("0.13.85", "_attr_native_value")},
+                }
+            },
+        ],
+    },
     {
         # 墙壁开关（零火线单键版）
         "lumi.ctrl_ln1.v1": ["Aqara", "Wall Switch (Single Rocker)", ""],
@@ -101,6 +755,8 @@ AIOT_DEVICE_MAPPING = [
         "lumi.switch.b1nacn02": ["Aqara", "Wall Switch D1 (Single Rocker)", ""],
         # 墙壁开关E1（零火线单键版）
         "lumi.switch.b1nc01": ["Aqara", "Wall Switch E1 (Single Rocker)", ""],
+        # 智能墙壁开关 J1（零火线单键版）
+        "lumi.switch.acn044": ["Aqara", "Wall Switch J1 (Single Rocker)", ""],
         "params": [
             {
                 "switch": {
@@ -118,7 +774,7 @@ AIOT_DEVICE_MAPPING = [
                     MK_INIT_PARAMS: {
                         MK_HASS_NAME: "power",
                         "device_class": SensorDeviceClass.POWER,
-                        "state_class": "measurement",
+                        "state_class": SensorStateClass.MEASUREMENT,
                         "unit_of_measurement": UnitOfPower.WATT,
                     },
                     MK_RESOURCES: {"power": ("0.12.85", "_attr_native_value")},
@@ -150,6 +806,8 @@ AIOT_DEVICE_MAPPING = [
         "lumi.switch.b1lacn02": ["Aqara", "Wall Switch D1 (Single Rocker)", ""],
         # 墙壁开关E1（单火线单键版）
         "lumi.switch.b1lc04": ["Aqara", "Wall Switch E1 (Single Rocker)", ""],
+        # 墙壁开关J1（单火线单键版）
+        "lumi.switch.acn041": ["Aqara", "Wall Switch J1 (Single Rocker)", ""],
         "params": [
             {
                 "switch": {
@@ -198,10 +856,39 @@ AIOT_DEVICE_MAPPING = [
                     MK_INIT_PARAMS: {
                         MK_HASS_NAME: "power",
                         "device_class": SensorDeviceClass.POWER,
-                        "state_class": "measurement",
+                        "state_class": SensorStateClass.MEASUREMENT,
                         "unit_of_measurement": UnitOfPower.WATT,
                     },
                     MK_RESOURCES: {"power": ("0.12.85", "_attr_native_value")},
+                }
+            },
+            {
+                "sensor": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "energy",
+                        "device_class": SensorDeviceClass.ENERGY,
+                        "state_class": "total_increasing",
+                        "unit_of_measurement": UnitOfEnergy.KILO_WATT_HOUR,
+                    },
+                    MK_RESOURCES: {"energy": ("0.13.85", "_attr_native_value")},
+                }
+            },
+        ],
+    },
+    {
+        # 智能墙壁开关 J1（零火线双键版）
+        "lumi.switch.acn045": ["Aqara", "Wall Switch J1 (Double Rocker)", ""],
+        "params": [
+            {
+                "switch": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "wall_switch",
+                    },
+                    MK_RESOURCES: {
+                        "toggle": ("4.{}.85", "_attr_is_on"),
+                        "zigbee_lqi": ("8.0.2007", "_attr_zigbee_lqi"),
+                    },
+                    MK_MAPPING_PARAMS: {"ch_count": 2},
                 }
             },
             {
@@ -230,6 +917,8 @@ AIOT_DEVICE_MAPPING = [
         "lumi.switch.b2lacn02": ["Aqara", "Wall Switch D1 (Double Rocker)", "QBKG21LM"],
         # 墙壁开关E1（单火线双键版）
         "lumi.switch.b2lc04": ["Aqara", "Wall Switch E1 (Double Rocker)", "QBKG21LM"],
+        # 智能墙壁开关 J1（单火线双键版）
+        "lumi.switch.acn042": ["Aqara", "Wall Switch J1 (Double Rocker)", ""],
         "params": [
             {
                 "switch": {
@@ -277,7 +966,7 @@ AIOT_DEVICE_MAPPING = [
                     MK_INIT_PARAMS: {
                         MK_HASS_NAME: "power",
                         "device_class": SensorDeviceClass.POWER,
-                        "state_class": "measurement",
+                        "state_class": SensorStateClass.MEASUREMENT,
                         "unit_of_measurement": UnitOfPower.WATT,
                     },
                     MK_RESOURCES: {"power": ("0.12.85", "_attr_native_value")},
@@ -297,6 +986,10 @@ AIOT_DEVICE_MAPPING = [
         ],
     },
     {
+        # 智能墙壁开关 E1（零火线三键版）
+        "lumi.switch.acn040": ["Aqara", "Wall Switch E1 (Three Rocker)", ""],
+        # 智能墙壁开关 J1（零火线三键版）
+        "lumi.switch.acn046": ["Aqara", "Wall Switch J1 (Three Rocker)", ""],
         # 妙控开关 V1（四键版）
         "lumi.switch.acn051": ["Aqara", "Wall Switch V1", ""],
         # 繁星旋钮 V1
@@ -341,6 +1034,23 @@ AIOT_DEVICE_MAPPING = [
             }
         ],
     },
+    {
+        # 墙壁开关J1（单火线三键版）
+        "lumi.switch.acn043": ["Aqara", "Wall Switch J1 (Three Rocker)", ""],
+        "params": [
+            {
+                "switch": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "wall_switch",
+                    },
+                    MK_RESOURCES: {
+                        "toggle": ("4.{}.85", "_attr_is_on"),
+                    },
+                    MK_MAPPING_PARAMS: {"ch_count": 3},
+                }
+            }
+        ],
+    },
     ##########################通断器、插座开关#######################################
     {
         # 单路控制器 T1（单火版）
@@ -378,7 +1088,7 @@ AIOT_DEVICE_MAPPING = [
                     MK_INIT_PARAMS: {
                         MK_HASS_NAME: "power",
                         "device_class": SensorDeviceClass.POWER,
-                        "state_class": "measurement",
+                        "state_class": SensorStateClass.MEASUREMENT,
                         "unit_of_measurement": UnitOfPower.WATT,
                     },
                     MK_RESOURCES: {"power": ("0.12.85", "_attr_native_value")},
@@ -401,6 +1111,8 @@ AIOT_DEVICE_MAPPING = [
     {
         # 双路控制器
         "lumi.relay.c2acn01": ["Aqara", "Double Way Controller", ""],
+        # 双路控制模块 T2
+        "lumi.switch.acn047": ["Aqara", "Double Way Controller T2", ""],
         "params": [
             {
                 "switch": {
@@ -419,7 +1131,7 @@ AIOT_DEVICE_MAPPING = [
                     MK_INIT_PARAMS: {
                         MK_HASS_NAME: "power",
                         "device_class": SensorDeviceClass.POWER,
-                        "state_class": "measurement",
+                        "state_class": SensorStateClass.MEASUREMENT,
                         "unit_of_measurement": UnitOfPower.WATT,
                     },
                     MK_RESOURCES: {"power": ("0.12.85", "_attr_native_value")},
@@ -702,6 +1414,8 @@ AIOT_DEVICE_MAPPING = [
         "lumi.curtain.acn015": ["Aqara", "Curtain Motor T2", ""],
         # 智能管状电机
         "lumi.curtain.aq2": ["Aqara", "Tube Motor", ""],
+        # 智能管状电机 T1
+        "lumi.curtain.vagl02": ["Aqara", "Tube Motor T1", ""],
         "params": [
             {
                 "cover": {
@@ -758,7 +1472,7 @@ AIOT_DEVICE_MAPPING = [
                     MK_INIT_PARAMS: {
                         MK_HASS_NAME: "battery",
                         "device_class": SensorDeviceClass.BATTERY,
-                        "state_class": "measurement",
+                        "state_class": SensorStateClass.MEASUREMENT,
                         "unit_of_measurement": PERCENTAGE,
                     },
                     MK_RESOURCES: {"battery": ("8.0.2001", "_attr_native_value")},
@@ -816,7 +1530,6 @@ AIOT_DEVICE_MAPPING = [
                             "_attr_current_cover_position",
                         ),
                         "running_status": ("14.4.85", "_attr_native_value"),
-                        "zigbee_lqi": ("8.0.2007", "_attr_zigbee_lqi"),
                     },
                 }
             },
@@ -825,10 +1538,37 @@ AIOT_DEVICE_MAPPING = [
                     MK_INIT_PARAMS: {
                         MK_HASS_NAME: "battery",
                         "device_class": SensorDeviceClass.BATTERY,
-                        "state_class": "measurement",
+                        "state_class": SensorStateClass.MEASUREMENT,
                         "unit_of_measurement": PERCENTAGE,
                     },
                     MK_RESOURCES: {"battery": ("8.0.2001", "_attr_native_value")},
+                }
+            },
+        ],
+    },
+    {
+        # 智能卷帘伴侣E1
+        "lumi.curtain.acn002": ["Aqara", "Curtain Partner E1", ""],
+        "params": [
+            {
+                "cover": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "curtain",
+                        "device_class": CoverDeviceClass.CURTAIN,
+                        "state_class": CoverState,
+                        "supported_features": CoverEntityFeature.OPEN
+                        | CoverEntityFeature.CLOSE
+                        | CoverEntityFeature.STOP
+                        | CoverEntityFeature.SET_POSITION,
+                    },
+                    MK_RESOURCES: {
+                        "is_closed": ("14.8.85", "_attr_is_closed"),
+                        "current_cover_position": (
+                            "1.1.85",
+                            "_attr_current_cover_position",
+                        ),
+                        "running_status": ("14.4.85", "_attr_native_value"),
+                    },
                 }
             },
         ],
@@ -950,6 +1690,24 @@ AIOT_DEVICE_MAPPING = [
         ],
         # 无线开关
         "lumi.remote.b1acn01": ["Aqara", "Wireless Remote Switch (Single Rocker)", ""],
+        # 无线开关
+        "lumi.sensor_switch.v1": [
+            "Aqara",
+            "Wireless Remote Switch (Single Rocker)",
+            "",
+        ],
+        # 无线开关
+        "lumi.sensor_switch.v2": [
+            "Aqara",
+            "Wireless Remote Switch (Single Rocker)",
+            "",
+        ],
+        # 无线开关
+        "lumi.sensor_switch.aq2": [
+            "Aqara",
+            "Wireless Remote Switch (Single Rocker)",
+            "",
+        ],
         # 无线开关（升级版）
         "lumi.sensor_switch.aq3": [
             "Aqara",
@@ -986,8 +1744,6 @@ AIOT_DEVICE_MAPPING = [
             "Wireless Remote Switch T1 (Single Rocker)",
             "",
         ],
-        # 无线开关E1 mini
-        "lumi.remote.acn007": ["Aqara", "Single Wall Button E1", "WXKG16LM"],  # noqa: F601
         "params": [
             {
                 "event": {
@@ -1128,7 +1884,7 @@ AIOT_DEVICE_MAPPING = [
                     MK_INIT_PARAMS: {
                         MK_HASS_NAME: "temperature",
                         "device_class": SensorDeviceClass.TEMPERATURE,
-                        "state_class": "measurement",
+                        "state_class": SensorStateClass.MEASUREMENT,
                         "unit_of_measurement": UnitOfTemperature.CELSIUS,
                     },
                     MK_RESOURCES: {"temperature": ("0.1.85", "_attr_native_value")},
@@ -1139,7 +1895,7 @@ AIOT_DEVICE_MAPPING = [
                     MK_INIT_PARAMS: {
                         MK_HASS_NAME: "humidity",
                         "device_class": SensorDeviceClass.HUMIDITY,
-                        "state_class": "measurement",
+                        "state_class": SensorStateClass.MEASUREMENT,
                         "unit_of_measurement": PERCENTAGE,
                     },
                     MK_RESOURCES: {"humidity": ("0.2.85", "_attr_native_value")},
@@ -1157,7 +1913,7 @@ AIOT_DEVICE_MAPPING = [
                     MK_INIT_PARAMS: {
                         MK_HASS_NAME: "temperature",
                         "device_class": SensorDeviceClass.TEMPERATURE,
-                        "state_class": "measurement",
+                        "state_class": SensorStateClass.MEASUREMENT,
                         "unit_of_measurement": UnitOfTemperature.CELSIUS,
                     },
                     MK_RESOURCES: {"temperature": ("0.1.85", "_attr_native_value")},
@@ -1168,7 +1924,7 @@ AIOT_DEVICE_MAPPING = [
                     MK_INIT_PARAMS: {
                         MK_HASS_NAME: "humidity",
                         "device_class": SensorDeviceClass.HUMIDITY,
-                        "state_class": "measurement",
+                        "state_class": SensorStateClass.MEASUREMENT,
                         "unit_of_measurement": PERCENTAGE,
                     },
                     MK_RESOURCES: {"humidity": ("0.2.85", "_attr_native_value")},
@@ -1179,7 +1935,7 @@ AIOT_DEVICE_MAPPING = [
                     MK_INIT_PARAMS: {
                         MK_HASS_NAME: "TVOC",
                         "device_class": SensorDeviceClass.VOLATILE_ORGANIC_COMPOUNDS_PARTS,
-                        "state_class": "measurement",
+                        "state_class": SensorStateClass.MEASUREMENT,
                         "unit_of_measurement": CONCENTRATION_PARTS_PER_BILLION,
                     },
                     MK_RESOURCES: {
@@ -1202,7 +1958,7 @@ AIOT_DEVICE_MAPPING = [
                     MK_INIT_PARAMS: {
                         MK_HASS_NAME: "illuminance",
                         "device_class": SensorDeviceClass.ILLUMINANCE,
-                        "state_class": "measurement",
+                        "state_class": SensorStateClass.MEASUREMENT,
                         "unit_of_measurement": LIGHT_LUX,
                     },
                     MK_RESOURCES: {"illuminance": ("0.3.85", "_attr_native_value")},
@@ -1213,7 +1969,7 @@ AIOT_DEVICE_MAPPING = [
                     MK_INIT_PARAMS: {
                         MK_HASS_NAME: "battery",
                         "device_class": SensorDeviceClass.BATTERY,
-                        "state_class": "measurement",
+                        "state_class": SensorStateClass.MEASUREMENT,
                         "unit_of_measurement": PERCENTAGE,
                     },
                     MK_RESOURCES: {"battery": ("8.0.2001", "_attr_native_value")},
@@ -1269,7 +2025,7 @@ AIOT_DEVICE_MAPPING = [
                     MK_INIT_PARAMS: {
                         MK_HASS_NAME: "illuminance",
                         "device_class": SensorDeviceClass.ILLUMINANCE,
-                        "state_class": "measurement",
+                        "state_class": SensorStateClass.MEASUREMENT,
                         "unit_of_measurement": LIGHT_LUX,
                         "entity_name": "Illuminance",
                     },
@@ -1296,7 +2052,7 @@ AIOT_DEVICE_MAPPING = [
                         "voltage": ("8.0.2008", "_attr_voltage"),
                     },
                 }
-            }
+            },
         ],
     },
     ###人体存在传感器
@@ -1309,15 +2065,26 @@ AIOT_DEVICE_MAPPING = [
             {
                 "binary_sensor": {
                     MK_INIT_PARAMS: {
-                        MK_HASS_NAME: "exist",
+                        MK_HASS_NAME: "default",
                         "device_class": BinarySensorDeviceClass.MOTION,
                     },
                     MK_RESOURCES: {
                         "exist": ("3.51.85", "_attr_is_on"),
-                        "direction_status": ("13.27.85", "_attr_direction_status"),
                     },
                 }
-            }
+            },
+            {
+                "event": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "default",
+                        "event_mapping": FP_MOTION_MAPPING,
+                        "entity_name": "移动监测事件",
+                    },
+                    MK_RESOURCES: {
+                        "event": ("13.27.85", "_attr_native_value"),
+                    },
+                }
+            },
         ],
     },
     {
@@ -1327,26 +2094,24 @@ AIOT_DEVICE_MAPPING = [
             {
                 "binary_sensor": {
                     MK_INIT_PARAMS: {
-                        MK_HASS_NAME: "motion",
+                        MK_HASS_NAME: "default",
                         "device_class": BinarySensorDeviceClass.MOTION,
                         "entity_name": "Area",
-                        "detect_time": 150,
                     },
                     MK_RESOURCES: {
-                        "motion": ("3.{}.85", "_attr_native_value"),
+                        "exist": ("3.{}.85", "_attr_is_on"),
                     },
                 }
             },
             {
                 "binary_sensor": {
                     MK_INIT_PARAMS: {
-                        MK_HASS_NAME: "motion",
+                        MK_HASS_NAME: "default",
                         "device_class": BinarySensorDeviceClass.MOTION,
                         "entity_name": "All Area",
-                        "detect_time": 150,
                     },
                     MK_RESOURCES: {
-                        "motion": ("3.51.85", "_attr_native_value"),
+                        "exist": ("3.51.85", "_attr_is_on"),
                     },
                     MK_MAPPING_PARAMS: {"ch_count": None},
                 }
@@ -1356,7 +2121,7 @@ AIOT_DEVICE_MAPPING = [
                     MK_INIT_PARAMS: {
                         MK_HASS_NAME: "illuminance",
                         "device_class": SensorDeviceClass.ILLUMINANCE,
-                        "state_class": "measurement",
+                        "state_class": SensorStateClass.MEASUREMENT,
                         "unit_of_measurement": LIGHT_LUX,
                         "entity_name": "Illuminance",
                     },
@@ -1557,7 +2322,7 @@ AIOT_DEVICE_MAPPING = [
                     MK_INIT_PARAMS: {
                         MK_HASS_NAME: "power",
                         "device_class": SensorDeviceClass.POWER,
-                        "state_class": "measurement",
+                        "state_class": SensorStateClass.MEASUREMENT,
                         "unit_of_measurement": UnitOfPower.WATT,
                     },
                     MK_RESOURCES: {"power": ("0.11.85", "_attr_native_value")},
@@ -1755,6 +2520,123 @@ AIOT_DEVICE_MAPPING = [
                     MK_RESOURCES: {
                         "ac_on_off": ("3.1.85", "_attr_native_value"),
                         "ac_state": ("14.10.85", "_attr_native_value"),
+                    },
+                }
+            },
+        ],
+    },
+    {
+        # 温控伴侣 T1（室内机）
+        "aqara.airrtc.acn02": ["Aqara", "Thermostat Partner T1", ""],
+        "params": [
+            {
+                "climate": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "airrtc_acn02",
+                        "supported_features": ClimateEntityFeature.TARGET_TEMPERATURE
+                        | ClimateEntityFeature.TARGET_TEMPERATURE_RANGE
+                        | ClimateEntityFeature.FAN_MODE
+                        | ClimateEntityFeature.TURN_ON
+                        | ClimateEntityFeature.TURN_OFF,
+                        "max_temp": float(30),
+                        "min_temp": float(16),
+                        "hvac_modes": [
+                            HVACMode.OFF,
+                            HVACMode.HEAT,
+                            HVACMode.COOL,
+                            HVACMode.AUTO,
+                            HVACMode.DRY,
+                            HVACMode.FAN_ONLY,
+                        ],
+                        "fan_modes": [
+                            FAN_AUTO,
+                            FAN_LOW,
+                            FAN_MEDIUM,
+                            FAN_HIGH,
+                        ],
+                        "temperature_unit": UnitOfTemperature.CELSIUS,
+                        "target_temperature_step": float(1),
+                    },
+                    MK_RESOURCES: {
+                        "ac_on_off": ("4.1.85", "_attr_native_value"),
+                        "ac_temperature": ("1.1.85", "_attr_native_value"),
+                        "ac_mode": ("14.140.85", "_attr_native_value"),
+                        "ac_fan_mode": ("14.1.85", "_attr_native_value"),
+                        "env_temperature": ("0.1.85", "_attr_native_value"),
+                    },
+                }
+            },
+        ],
+    },
+    {
+        # 智能温控器 S3
+        "lumi.airrtc.pcacn2": ["Aqara", "Thermostat S3", ""],
+        "lumi.airrtc.pcacn2_thermostat": ["Aqara", "Thermostat S3", ""],
+        "params": [
+            {
+                "climate": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "airrtc_pcacn2",
+                        "supported_features": ClimateEntityFeature.TARGET_TEMPERATURE
+                        | ClimateEntityFeature.TARGET_TEMPERATURE_RANGE
+                        | ClimateEntityFeature.FAN_MODE
+                        | ClimateEntityFeature.TURN_ON
+                        | ClimateEntityFeature.TURN_OFF,
+                        "max_temp": float(30),
+                        "min_temp": float(16),
+                        "hvac_modes": [
+                            HVACMode.OFF,
+                            HVACMode.HEAT,
+                            HVACMode.COOL,
+                            HVACMode.FAN_ONLY,
+                        ],
+                        "fan_modes": [
+                            FAN_AUTO,
+                            FAN_LOW,
+                            FAN_MEDIUM,
+                            FAN_HIGH,
+                        ],
+                        "temperature_unit": UnitOfTemperature.CELSIUS,
+                        "target_temperature_step": 0.5,
+                    },
+                    MK_RESOURCES: {
+                        "ac_on_off": ("4.21.85", "_attr_native_value"),
+                        "ac_temperature": ("1.8.85", "_attr_native_value"),
+                        "ac_mode": ("14.51.85", "_attr_native_value"),
+                        "ac_fan_mode": ("14.35.85", "_attr_native_value"),
+                        "env_temperature": ("0.1.85", "_attr_native_value"),
+                        "env_humidity": ("0.2.85", "_attr_native_value"),
+                    },
+                }
+            },
+        ],
+    },
+    {
+        # 智能阀式温控器 E1
+        "lumi.airrtc.agl001": ["Aqara", "Valve Thermostat E1", ""],
+        "params": [
+            {
+                "climate": {
+                    MK_INIT_PARAMS: {
+                        MK_HASS_NAME: "airrtc_agl001",
+                        "supported_features": ClimateEntityFeature.TARGET_TEMPERATURE
+                        | ClimateEntityFeature.TARGET_TEMPERATURE_RANGE
+                        | ClimateEntityFeature.TURN_ON
+                        | ClimateEntityFeature.TURN_OFF,
+                        "max_temp": float(30),
+                        "min_temp": float(5),
+                        "hvac_modes": [
+                            HVACMode.OFF,
+                            HVACMode.HEAT,
+                        ],
+                        "temperature_unit": UnitOfTemperature.CELSIUS,
+                        "target_temperature_step": 0.5,
+                    },
+                    MK_RESOURCES: {
+                        "ac_on_off": ("4.21.85", "_attr_native_value"),
+                        "ac_temperature": ("1.8.85", "_attr_native_value"),
+                        "ac_mode": ("14.51.85", "_attr_native_value"),
+                        "env_temperature": ("0.1.85", "_attr_native_value"),
                     },
                 }
             },

@@ -75,10 +75,55 @@ P3_FAN_ATTR_RES_MAPPING = {
     FAN_HIGH: "3",
 }
 
+T1_MODE_RES_ATTR_MAPPING = {
+    "0": HVACMode.AUTO,
+    "1": HVACMode.COOL,
+    "2": HVACMode.DRY,
+    "3": HVACMode.FAN_ONLY,
+    "4": HVACMode.HEAT,
+}
+
+T1_MODE_ATTR_RES_MAPPING = {
+    HVACMode.AUTO: "0",
+    HVACMode.COOL: "1",
+    HVACMode.DRY: "2",
+    HVACMode.FAN_ONLY: "3",
+    HVACMode.HEAT: "4",
+}
+
+S3_MODE_RES_ATTR_MAPPING = {
+    "0": HVACMode.HEAT,
+    "1": HVACMode.COOL,
+    "4": HVACMode.FAN_ONLY,
+}
+
+S3_MODE_ATTR_RES_MAPPING = {
+    HVACMode.HEAT: "0",
+    HVACMode.COOL: "1",
+    HVACMode.FAN_ONLY: "4",
+}
+
+S3_FAN_RES_ATTR_MAPPING = {
+    "0": FAN_LOW,
+    "1": FAN_MEDIUM,
+    "2": FAN_HIGH,
+    "3": FAN_AUTO,
+}
+
+S3_FAN_ATTR_RES_MAPPING = {
+    FAN_LOW: "0",
+    FAN_MEDIUM: "1",
+    FAN_HIGH: "2",
+    FAN_AUTO: "3",
+}
+
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     manager: AiotManager = hass.data[DOMAIN][HASS_DATA_AIOT_MANAGER]
     cls_entities = {
+        "airrtc_agl001": AiotAirrtcAgl001Entity,
+        "airrtc_pcacn2": AiotAirrtcPcacn2Entity,
+        "airrtc_acn02": AiotAirrtcAcn02Entity,
         "ac_partner_p3": AiotACPartnerP3Entity,
         "airrtc_tcpecn02": AiotAirrtcTcpecn02Entity,
         "airrtc_vrfegl01": AiotAirrtcVrfegl01Entity,
@@ -86,6 +131,180 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     await manager.async_add_entities(
         config_entry, TYPE, cls_entities, async_add_entities
     )
+
+
+class AiotAirrtcAgl001Entity(AiotEntityBase, ClimateEntity):
+    def __init__(self, hass, device, res_params, channel=None, **kwargs):
+        AiotEntityBase.__init__(self, hass, device, res_params, TYPE, channel, **kwargs)
+        self._attr_temperature_unit = kwargs.get("temperature_unit")
+        self._attr_hvac_modes = kwargs.get("hvac_modes")
+        self._attr_target_temperature_step = kwargs.get("target_temperature_step")
+
+        self._attr_max_temp = kwargs.get("max_temp")
+        self._attr_min_temp = kwargs.get("min_temp")
+        self._attr_target_temperature_high = kwargs.get("max_temp")
+        self._attr_target_temperature_low = kwargs.get("min_temp")
+
+    def convert_res_to_attr(self, res_name, res_value):
+        if res_name == "ac_on_off":
+            if res_value == "0":
+                self._attr_hvac_mode = HVACMode.OFF
+            if res_value == "1":
+                self._attr_hvac_mode = HVACMode.HEAT
+        if res_name == "ac_mode":
+            if res_value == "0":
+                self._attr_hvac_mode = HVACMode.HEAT
+        if res_name == "ac_temperature":
+            self._attr_target_temperature = float(res_value) / 100
+        if res_name == "env_temperature":
+            self._attr_current_temperature = float(res_value) / 100
+        self.schedule_update_ha_state()
+        return super().convert_res_to_attr(res_name, res_value)
+
+    async def async_set_hvac_mode(self, hvac_mode):
+        if hvac_mode == HVACMode.OFF:
+            await self.async_set_res_value("ac_on_off", "0")
+        if hvac_mode == HVACMode.HEAT:
+            await self.async_set_res_value("ac_mode", "0")
+            await self.async_set_res_value("ac_on_off", "1")
+        self._attr_hvac_mode = hvac_mode
+        self.schedule_update_ha_state()
+
+    async def async_set_temperature(self, **kwargs):
+        temp = kwargs.get("temperature")
+        await self.async_set_res_value("ac_temperature", str(int(temp * 100)))
+        self._attr_target_temperature = temp
+        self.schedule_update_ha_state()
+
+
+class AiotAirrtcPcacn2Entity(AiotEntityBase, ClimateEntity):
+    def __init__(self, hass, device, res_params, channel=None, **kwargs):
+        AiotEntityBase.__init__(self, hass, device, res_params, TYPE, channel, **kwargs)
+        self._extra_state_attributes.extend(["last_ac_mode"])
+        self._attr_temperature_unit = kwargs.get("temperature_unit")
+        self._attr_hvac_modes = kwargs.get("hvac_modes")
+        self._attr_fan_modes = kwargs.get("fan_modes")
+        self._attr_target_temperature_step = kwargs.get("target_temperature_step")
+
+        self._attr_max_temp = kwargs.get("max_temp")
+        self._attr_min_temp = kwargs.get("min_temp")
+        self._attr_target_temperature_high = kwargs.get("max_temp")
+        self._attr_target_temperature_low = kwargs.get("min_temp")
+
+        self._attr_last_ac_mode = None
+
+    @property
+    def last_ac_mode(self):
+        return self._attr_last_ac_mode
+
+    def convert_res_to_attr(self, res_name, res_value):
+        if res_name == "ac_on_off":
+            if res_value == "0":
+                self._attr_hvac_mode = HVACMode.OFF
+            if res_value == "1":
+                self._attr_hvac_mode = self._attr_last_ac_mode
+        if res_name == "ac_mode":
+            self._attr_hvac_mode = S3_MODE_RES_ATTR_MAPPING.get(res_value)
+            self._attr_last_ac_mode = S3_MODE_RES_ATTR_MAPPING.get(res_value)
+        if res_name == "ac_fan_mode":
+            self._attr_fan_mode = S3_FAN_RES_ATTR_MAPPING.get(res_value)
+        if res_name == "ac_temperature":
+            self._attr_target_temperature = float(res_value) / 100
+        if res_name == "env_temperature":
+            self._attr_current_temperature = float(res_value) / 100
+        if res_name == "env_humidity":
+            self._attr_current_humidity = float(res_value) / 100
+        self.schedule_update_ha_state()
+        return super().convert_res_to_attr(res_name, res_value)
+
+    async def async_set_hvac_mode(self, hvac_mode):
+        if hvac_mode == HVACMode.OFF:
+            await self.async_set_res_value("ac_on_off", "0")
+        else:
+            await self.async_set_res_value(
+                "ac_mode", S3_MODE_ATTR_RES_MAPPING.get(hvac_mode)
+            )
+            if self._attr_hvac_mode == HVACMode.OFF:
+                await self.async_set_res_value("ac_on_off", "1")
+        self._attr_hvac_mode = hvac_mode
+        self.schedule_update_ha_state()
+
+    async def async_set_temperature(self, **kwargs):
+        temp = kwargs.get("temperature")
+        await self.async_set_res_value("ac_temperature", str(int(temp * 100)))
+        self._attr_target_temperature = temp
+        self.schedule_update_ha_state()
+
+    async def async_set_fan_mode(self, fan_mode):
+        await self.async_set_res_value(
+            "ac_fan_mode", S3_FAN_ATTR_RES_MAPPING.get(fan_mode)
+        )
+        self._attr_fan_mode = fan_mode
+        self.schedule_update_ha_state()
+
+
+class AiotAirrtcAcn02Entity(AiotEntityBase, ClimateEntity):
+    def __init__(self, hass, device, res_params, channel=None, **kwargs):
+        AiotEntityBase.__init__(self, hass, device, res_params, TYPE, channel, **kwargs)
+        self._extra_state_attributes.extend(["last_ac_mode"])
+        self._attr_temperature_unit = kwargs.get("temperature_unit")
+        self._attr_hvac_modes = kwargs.get("hvac_modes")
+        self._attr_fan_modes = kwargs.get("fan_modes")
+        self._attr_target_temperature_step = kwargs.get("target_temperature_step")
+
+        self._attr_max_temp = kwargs.get("max_temp")
+        self._attr_min_temp = kwargs.get("min_temp")
+        self._attr_target_temperature_high = kwargs.get("max_temp")
+        self._attr_target_temperature_low = kwargs.get("min_temp")
+
+        self._attr_last_ac_mode = None
+
+    @property
+    def last_ac_mode(self):
+        return self._attr_last_ac_mode
+
+    def convert_res_to_attr(self, res_name, res_value):
+        if res_name == "ac_on_off":
+            if res_value == "0":
+                self._attr_hvac_mode = HVACMode.OFF
+            if res_value == "1":
+                self._attr_hvac_mode = self._attr_last_ac_mode
+        if res_name == "ac_mode":
+            self._attr_hvac_mode = T1_MODE_RES_ATTR_MAPPING.get(res_value)
+            self._attr_last_ac_mode = T1_MODE_RES_ATTR_MAPPING.get(res_value)
+        if res_name == "ac_fan_mode":
+            self._attr_fan_mode = P3_FAN_RES_ATTR_MAPPING.get(res_value)
+        if res_name == "ac_temperature":
+            self._attr_target_temperature = int(float(res_value)) / 100
+        if res_name == "env_temperature":
+            self._attr_current_temperature = int(float(res_value)) / 100
+        self.schedule_update_ha_state()
+        return super().convert_res_to_attr(res_name, res_value)
+
+    async def async_set_hvac_mode(self, hvac_mode):
+        if hvac_mode == HVACMode.OFF:
+            await self.async_set_res_value("ac_on_off", "0")
+        else:
+            await self.async_set_res_value(
+                "ac_mode", T1_MODE_ATTR_RES_MAPPING.get(hvac_mode)
+            )
+            if self._attr_hvac_mode == HVACMode.OFF:
+                await self.async_set_res_value("ac_on_off", "1")
+        self._attr_hvac_mode = hvac_mode
+        self.schedule_update_ha_state()
+
+    async def async_set_temperature(self, **kwargs):
+        temp = kwargs.get("temperature")
+        await self.async_set_res_value("ac_temperature", str(int(temp * 100)))
+        self._attr_target_temperature = temp
+        self.schedule_update_ha_state()
+
+    async def async_set_fan_mode(self, fan_mode):
+        await self.async_set_res_value(
+            "ac_fan_mode", P3_FAN_ATTR_RES_MAPPING.get(fan_mode)
+        )
+        self._attr_fan_mode = fan_mode
+        self.schedule_update_ha_state()
 
 
 class AiotAirrtcVrfegl01Entity(AiotEntityBase, ClimateEntity):
@@ -125,8 +344,6 @@ class AiotAirrtcVrfegl01Entity(AiotEntityBase, ClimateEntity):
             channel_id = match.group(2)
         self.airrtc_vrfegl01_bin_cache["swing_direction"][channel_id] = swing_direction
         self.airrtc_vrfegl01_bin_cache["other"][channel_id] = other
-
-        _LOGGER.info(self.airrtc_vrfegl01_bin_cache)
 
         if power == 0:
             self._attr_hvac_mode = HVACMode.OFF

@@ -11,7 +11,7 @@
             "get_auth_code": {
                 "data": {
                     "field_country_code": "云服务国家/地区",
-                    "field_account": "Aqara Home账号（手机号）",
+                    "field_account": "Aqara Home账号（手机号/邮箱）",
                     "field_app_id": "开放平台app_id，需自行申请",
                     "field_app_key": "开放平台app_key，需自行申请",
                     "field_key_id": "开放平台key_id，需自行申请",
@@ -37,7 +37,7 @@
             "init": {
                 "data": {
                     "field_country_code": "云服务国家/地区",
-                    "field_account": "Aqara Home账号（手机号）",
+                    "field_account": "Aqara Home账号（手机号/邮箱）",
                     "field_app_id": "开放平台app_id，需自行申请",
                     "field_app_key": "开放平台app_key，需自行申请",
                     "field_key_id": "开放平台key_id，需自行申请",
