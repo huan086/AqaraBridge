@@ -95,6 +95,7 @@ AIOT_DEVICE_MAPPING = [
         "lumi.gateway.iragl8": ["Aqara", "GateWay M2 22", ""],
         "lumi.gateway.aq1": ["Aqara", "GateWay M2", ""],
         "lumi.gateway.acn012": ["Aqara", "GateWay M3", ""],
+        "lumi.gateway.agl004": ["Aqara", "Gateway M3", ""],
         "lumi.controller.a4acn1": ["Aqara", "GateWay JY S1", ""],
         "params": [],
     },
