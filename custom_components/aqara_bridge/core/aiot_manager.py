@@ -372,7 +372,7 @@ class AiotToggleableEntityBase(AiotEntityBase):
 
 class AiotMessageHandler:
     def __init__(self, loop, app_id, app_key, key_id):
-        self._server = "3rd-subscription.aqara.cn:9876"
+        self._server = "sgpro-opdmq-broker1.aqara.com:9876"
         self._app_id = app_id
         self._app_key = app_key
         self._key_id = key_id

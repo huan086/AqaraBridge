@@ -15,6 +15,7 @@ API_DOMAIN = {
     "KR": "open-kr.aqara.com",
     "RU": "open-ru.aqara.com",
     "GER": "open-ger.aqara.com",
+    "SG": "open-sg.aqara.com",
 }
 
 
