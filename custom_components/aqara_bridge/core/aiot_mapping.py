@@ -833,6 +833,7 @@ AIOT_DEVICE_MAPPING = [
         "lumi.switch.acn005": ["Aqara", "Wall Switch X1 (Double Rocker)", ""],
         # 墙壁开关H1（零火线双键版）
         "lumi.switch.n2acn1": ["Aqara", "Wall Switch H1 (Double Rocker)", "QBKG27LM"],
+        "lumi.switch.n2aeu1": ["Aqara", "Wall Switch H1 EU (Double Rocker)", ""],
         # 墙壁开关T1（零火线双键版）
         "lumi.switch.b2nacn01": ["Aqara", "Wall Switch T1 (Double Rocker)", ""],
         # 墙壁开关D1（零火线双键版）
