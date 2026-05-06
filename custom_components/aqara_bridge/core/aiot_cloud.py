@@ -1,3 +1,4 @@
+import asyncio
 import hashlib
 import json
 import random
@@ -53,6 +54,7 @@ class AiotCloud:
         self.app_key = None
         self.session = session
         self.options = None
+        self._refresh_lock = asyncio.Lock()
         self.set_country("CN")
 
     def set_options(self, options):
@@ -107,7 +109,12 @@ class AiotCloud:
         return headers
 
     async def _async_invoke_aqara_cloud_api(
-        self, intent: str, only_result: bool = True, list_data: bool = False, **kwargs
+        self,
+        intent: str,
+        only_result: bool = True,
+        list_data: bool = False,
+        allow_auto_refresh: bool = True,
+        **kwargs,
     ):
         """调用Aqara Api"""
         try:
@@ -136,7 +143,7 @@ class AiotCloud:
                     _LOGGER.warning(
                         f"Call Aiot api failed，request:{payload},return:{jo}"
                     )
-                    if jo["code"] == 108:
+                    if jo["code"] == 108 and allow_auto_refresh and intent != "config.auth.refreshToken":
                         # 令牌过期或异常，正在尝试自动刷新
                         _LOGGER.warning(f"Aiot token expired, trying to auto refresh！")
                         new_jo = await self.async_refresh_token(self.refresh_token)
@@ -144,7 +151,11 @@ class AiotCloud:
                             # Aiot令牌更新成功！
                             _LOGGER.info(f"Aiot token refresh successfully！")
                             return await self._async_invoke_aqara_cloud_api(
-                                intent, only_result, list_data, **kwargs
+                                intent,
+                                only_result,
+                                list_data,
+                                allow_auto_refresh=False,
+                                **kwargs,
                             )
                         else:
                             # Aiot令牌更新失败，请重新授权
@@ -189,20 +200,44 @@ class AiotCloud:
 
     async def async_refresh_token(self, refresh_token: str):
         """刷新访问令牌"""
+        async with self._refresh_lock:
+            # 如果 token 已被其他协程刷新，直接复用最新 token，避免并发刷新导致 refresh_token 被轮换后立刻失效
+            if (
+                refresh_token
+                and self.refresh_token
+                and refresh_token != self.refresh_token
+                and self.access_token
+            ):
+                return {
+                    "code": 0,
+                    "result": {
+                        "accessToken": self.access_token,
+                        "refreshToken": self.refresh_token,
+                    },
+                    "message": "Token already refreshed by another coroutine.",
+                }
+
+            token_to_use = self.refresh_token if self.refresh_token else refresh_token
+            jo = await self._async_refresh_token_no_lock(token_to_use)
+            if jo["code"] == 0:
+                self.access_token = jo["result"]["accessToken"]
+                self.refresh_token = jo["result"]["refreshToken"]
+                if self.update_token_event_callback:
+                    self.update_token_event_callback(self.access_token, self.refresh_token)
+            else:
+                _LOGGER.error(
+                    f"Call Aiot api refresh token failed，return:{jo}"
+                )
+            return jo
+
+    async def _async_refresh_token_no_lock(self, refresh_token: str):
+        """刷新访问令牌（调用方需自行处理并发）"""
         jo = await self._async_invoke_aqara_cloud_api(
             intent="config.auth.refreshToken",
             only_result=False,
+            allow_auto_refresh=False,
             refreshToken=refresh_token,
         )
-        if jo["code"] == 0:
-            self.access_token = jo["result"]["accessToken"]
-            self.refresh_token = jo["result"]["refreshToken"]
-            if self.update_token_event_callback:
-                self.update_token_event_callback(self.access_token, self.refresh_token)
-        else:
-            _LOGGER.error(
-                f"Call Aiot api refresh token failed，request:{refresh_token},return:{jo}"
-            )
         return jo
 
     async def async_query_device_bind_key(self, did: str):
